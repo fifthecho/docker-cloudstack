@@ -1,11 +1,23 @@
 #!/bin/bash
 
+test_for_db_config() {
+  CONFIG_CHECK=`cat /etc/cloudstack/management/db.properties | grep db.cloud.host=localhost`
+  if [ "$CONFIG_CHECK" == "db.cloud.host=localhost" ]; then
+    echo "db.properties misconfigured. Fixing this."
+    cloudstack-setup-databases cloud:cloudstack@$DB_PORT_3306_TCP_ADDR -m cloudstack -k cloudstack
+    test_for_db_config
+  else
+    echo "Everything's good. Starting CloudStack."
+    cd /usr/share/cloudstack-management/bin
+    ./catalina.sh run
+  fi
+}
+
 test_for_cloud_db() {
   RESULT=`mysqlshow --user=root --password=cloud --host=$DB_PORT_3306_TCP_ADDR | grep -o cloud | uniq`
   if [ "$RESULT" == "cloud" ]; then
     echo "Cloud DB exists. Starting CloudStack."
-    cd /usr/share/cloudstack-management/bin
-    ./catalina.sh run
+    test_for_db_config
   else
     echo "Cloud DB does not exist. Creating it."
     cloudstack-setup-databases cloud:cloudstack@$DB_PORT_3306_TCP_ADDR --deploy-as=root:cloud -m cloudstack -k cloudstack
