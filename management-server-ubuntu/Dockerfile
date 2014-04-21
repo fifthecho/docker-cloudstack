@@ -16,5 +16,5 @@ ADD build/run_cloudstack.sh /usr/local/bin/run_cloudstack.sh
 RUN chmod 755 /usr/local/bin/run_cloudstack.sh
 ADD build/cloudstack-setup-databases /usr/bin/cloudstack-setup-databases
 RUN chmod 755 /usr/bin/cloudstack-setup-databases
-EXPOSE 8080
+EXPOSE 8080 8250 3922 9090 7080
 CMD ["/usr/local/bin/run_cloudstack.sh"]

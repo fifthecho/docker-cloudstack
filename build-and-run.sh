@@ -51,7 +51,7 @@ check_mgmt_container_running(){
       docker rm cloudstack-mgmt
       check_mgmt_container_running
     else
-      docker run -d --name cloudstack-mgmt --link cloudstack-db:db -p 8080:8080 cloudstack-management:$CLOUDSTACK_VERSION
+      docker run -d --name cloudstack-mgmt --link cloudstack-db:db -p 8080:8080 -p 8250:8250 -p 3922:3922 -p 9090:9090 -p 7080:7080 cloudstack-management:$CLOUDSTACK_VERSION
     fi
   fi
 }

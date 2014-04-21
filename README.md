@@ -17,5 +17,7 @@ The initial build may take some time depending on your location due to the speed
 
 Once built, you'll need to install the system VM templates into an NFS repository for the Hypervisors to use. For example, I ran:
 ```
-    ./tools/cloud-install-sys-tmplt -m /mnt/cloudstack/secondary/ -h kvm -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
+./tools/cloud-install-sys-tmplt -m /mnt/cloudstack/secondary/ -h kvm -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
 ```
+
+If you are wanting to attach a KVM server, log into CloudStack and under "Global Settings" change the "host" parameter to the IP address of the host which is running the container, save the configuration change, stop the docker container and re-run the build-and-run.sh script.

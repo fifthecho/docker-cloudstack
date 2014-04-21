@@ -14,5 +14,5 @@ RUN chmod 664 /etc/mysql/conf.d/cloudstack.cnf
 ADD build/run_mysql.sh /usr/local/bin/run_mysql.sh
 RUN chmod +x /usr/local/bin/run_mysql.sh
 VOLUME ["/var/lib/mysql"]
-EXPOSE 3306
+EXPOSE 3306 
 CMD ["/usr/local/bin/run_mysql.sh"]
