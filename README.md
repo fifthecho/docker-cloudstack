@@ -16,8 +16,20 @@ Clone. Run the ./build-and-run.sh script. Connect to localhost on port 8080 for 
 The initial build may take some time depending on your location due to the speed of the repository for CloudStack, however, I've been able to get a management server built and running in less than 10 minutes.
 
 Once built, you'll need to install the system VM templates into an NFS repository for the Hypervisors to use. For example, I ran:
+
+for KVM:
 ```
-./tools/cloud-install-sys-tmplt -m /mnt/cloudstack/secondary/ -h kvm -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
+./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/kvm/ -h kvm -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
 ```
+for XenServer:
+```
+./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/xen/ -h xenserver -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-xen.vhd.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
+
+```
+for Hyper-V
+```
+./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/hyperv/ -h hyperv -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2013-12-23-hyperv.vhd.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
+```
+
 
 If you are wanting to attach a KVM server, log into CloudStack and under "Global Settings" change the "host" parameter to the IP address of the host which is running the container, save the configuration change, stop the docker container and re-run the build-and-run.sh script.

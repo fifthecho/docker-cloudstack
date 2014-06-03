@@ -6,7 +6,10 @@ FROM ubuntu:12.04
 MAINTAINER Jeff Moody <fifthecho@gmail.com>
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
-RUN apt-get install -y wget hostname mysql-client
+RUN apt-get install -y wget hostname mysql-client openssh-server
+RUN mkdir /var/run/sshd
+RUN sshd -D
+RUN echo 'root:cloudstack' |chpasswd
 RUN echo "deb http://cloudstack.apt-get.eu/ubuntu precise 4.3" > /etc/apt/sources.list.d/cloudstack.list
 RUN wget -O - http://cloudstack.apt-get.eu/release.asc|apt-key add -
 RUN apt-get update
@@ -16,5 +19,5 @@ ADD build/run_cloudstack.sh /usr/local/bin/run_cloudstack.sh
 RUN chmod 755 /usr/local/bin/run_cloudstack.sh
 ADD build/cloudstack-setup-databases /usr/bin/cloudstack-setup-databases
 RUN chmod 755 /usr/bin/cloudstack-setup-databases
-EXPOSE 8080 8250 3922 9090 7080
+EXPOSE 8080 8250 3922 9090 7080 22
 CMD ["/usr/local/bin/run_cloudstack.sh"]

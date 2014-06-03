@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+  tasks:
+  - name: build database container
+    shell: cd $PWD \&\& cd database-server-ubuntu \&\& docker build -t cloudstack-database .
+  - name: ensure py-docker is installed
+    pip: name=docker-py
+  - name: run mysql servers
+    docker: image=cloudstack-database name=acs-db state=present publish_all_ports=true

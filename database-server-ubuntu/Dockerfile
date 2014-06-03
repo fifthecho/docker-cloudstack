@@ -5,14 +5,17 @@
 FROM ubuntu:12.04
 MAINTAINER Jeff Moody <fifthecho@gmail.com>
 ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'root:cloudstack' |chpasswd
 RUN apt-get update
-RUN echo "mysql-server mysql-server/root_password password cloud" | debconf-set-selections
-RUN echo "mysql-server mysql-server/root_password_again password cloud" | debconf-set-selections
-RUN apt-get install -y mysql-server
-ADD build/cloudstack.cnf /etc/mysql/conf.d/cloudstack.cnf
-RUN chmod 664 /etc/mysql/conf.d/cloudstack.cnf
-ADD build/run_mysql.sh /usr/local/bin/run_mysql.sh
-RUN chmod +x /usr/local/bin/run_mysql.sh
+RUN apt-get install -y openssh-server python-pip python-dev supervisor
+RUN mkdir -p /var/log/supervisor
+RUN mkdir /var/run/sshd
+RUN mkdir /etc/ansible
+RUN pip install ansible
+ADD build/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ADD build/database-ansible.yml /etc/ansible/setup.yml
+ADD build/ansible-hosts.ini /etc/ansible/hosts
 VOLUME ["/var/lib/mysql"]
-EXPOSE 3306 
-CMD ["/usr/local/bin/run_mysql.sh"]
+RUN ansible-playbook /etc/ansible/setup.yml -c local
+EXPOSE 3306 22
+CMD ["/usr/bin/supervisord"]
