@@ -1,0 +1,20 @@
+---
+- hosts: all
+  sudo: yes
+  vars:
+    mysql_data_dir: "/var/lib/mysql"
+  tasks:
+    - name: ensure mysql packages are installed
+    apt: pkg={{ item }} force=yes
+    with_items:
+      - python-mysqldb
+      - mysql-server
+      - mysql-client
+    - name: ensure mysql directory has the correct permissions
+      file: path={{ mysql_data_dir }} owner=mysql group=mysql
+    - name: Check for MySQL database initialization
+      stat: path={{ mysql_data_dir }}/mysql
+      register: is_mysql_initialized
+    - name: initialize mysql database (if necessary)
+      command: /usr/bin/mysql_install_db
+      when: not is_mysql_initialized

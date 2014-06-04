@@ -2,10 +2,25 @@
 - hosts: all
   vars:
     ansible_python_interpreter: "/usr/bin/env python"
+    host_key_checking: False
+  pre_tasks:
+  - name: ensure sshpass is installed on Debian/Ubuntu
+    apt: name=sshpass state=latest
+    when: ansible_os_family == "Debian"
   tasks:
-  - name: build database container
-    shell: cd $PWD \&\& cd database-server-ubuntu \&\& docker build -t cloudstack-database .
+  - name: fetch build code
+    git: repo=https://git.dpcloud.com/jmoody/docker-cloudstack-management.git dest=/tmp/build
+  - name: build the database container
+    docker_image: path=/tmp/build/database-server-cloudstack name=apache-cloudstack-database state=present
   - name: ensure py-docker is installed
     pip: name=docker-py
   - name: run mysql servers
-    docker: image=cloudstack-database name=acs-db state=present publish_all_ports=true
+    docker: image=apache-cloudstack-database name=acs-db state=present ports=3306:3306 publish_all_ports=true
+  - name: fetch mysql ssh port
+    shell: docker port acs-db 22 | cut -d ":" -f 2
+    register: mysql_ssh_port
+  - debug: var=mysql_ssh_port.stdout
+  - name: add mysql server to inventory
+    add_host: name=acs-db groups=database ansible_ssh_host=localhost ansible_ssh_port={{ mysql_ssh_port.stdout }} ansible_ssh_pass=cloudstack
+  - name: wait for container to start
+    command: /bin/sleep 15
