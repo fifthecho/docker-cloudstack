@@ -3,6 +3,7 @@
   vars:
     ansible_python_interpreter: "/usr/bin/env python"
     host_key_checking: False
+    root_user_password: cloudstack
   pre_tasks:
   - name: ensure sshpass is installed on Debian/Ubuntu
     apt: name=sshpass state=latest
@@ -24,3 +25,27 @@
     add_host: name=acs-db groups=database ansible_ssh_host=localhost ansible_ssh_port={{ mysql_ssh_port.stdout }} ansible_ssh_pass=cloudstack
   - name: wait for container to start
     command: /bin/sleep 15
+- hosts: database
+  vars:
+    mysql_root_password: cloudstack
+
+  tasks:
+    - name: update mysql root password for all root accounts
+      action: mysql_user name=root host={{ item }} password={{ mysql_root_password }}
+      with_items:
+        - 127.0.0.1
+        - ::1
+        - localhost
+        - \%
+
+    - name: ensure anonymous users are not in the database
+      action: mysql_user name='' host={{ item }} state=absent
+      with_items:
+        - $inventory_hostname
+        - $ansible_hostname
+        - localhost
+
+    - name: remove the test database
+      action: mysql_db name=test state=absent
+      tags: config
+
