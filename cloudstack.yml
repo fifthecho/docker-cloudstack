@@ -30,6 +30,10 @@
     mysql_root_password: cloudstack
 
   tasks:
+    - name: check for my.cnf (if present then DB auth is configured)
+      stat: path=/root/.my.cnf
+      register: mycnf_present
+
     - name: update mysql root password for all root accounts
       mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
       with_items:
@@ -37,6 +41,7 @@
         - ::1
         - \%
         - localhost
+      when: not mycnf_present
 
     - name: setup my.cnf to allow root authentication for mysql
       template: src=database-server-centos/build/.my.cnf dest=/root/.my.cnf
