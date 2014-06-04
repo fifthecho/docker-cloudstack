@@ -11,7 +11,7 @@
   - name: fetch build code
     git: repo=https://git.dpcloud.com/jmoody/docker-cloudstack-management.git dest=/tmp/build
   - name: build the database container
-    docker_image: path=/tmp/build/database-server-cloudstack name=apache-cloudstack-database state=present
+    docker_image: path=/tmp/build/database-server-centos name=apache-cloudstack-database state=present
   - name: ensure py-docker is installed
     pip: name=docker-py
   - name: run mysql servers
