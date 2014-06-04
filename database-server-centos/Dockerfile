@@ -4,6 +4,7 @@
 #
 FROM centos:6.4
 MAINTAINER Jeff Moody <fifthecho@gmail.com>
+RUN echo 'root:cloudstack' |chpasswd
 RUN yum install -y --nogpgcheck http://fedora-epel.mirror.lstn.net/6/i386/epel-release-6-8.noarch.rpm
 RUN yum install -y ansible
 ADD build/ansible-hosts.ini /etc/ansible/hosts
