@@ -24,7 +24,7 @@
   - name: add mysql server to inventory
     add_host: name=acs-db groups=database ansible_ssh_host=localhost ansible_ssh_port={{ mysql_ssh_port.stdout }} ansible_ssh_pass=cloudstack
   - name: wait for container to start
-    command: /bin/sleep 15
+    command: /bin/sleep 25
 - hosts: database
   vars:
     mysql_root_password: cloudstack

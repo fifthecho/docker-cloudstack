@@ -11,6 +11,7 @@
       with_items:
         - mysql-community-server
         - mysql-connector-python
+        - MySQL-python
         - supervisor
         - openssh-server
         - sudo
