@@ -20,5 +20,3 @@
       service: name=mysqld state=started enabled=false
     - name: start sshd
       service: name=sshd state=started enabled=false
-    - name: set root password
-      user: name=root password={{ root_user_password }} update_password=always
