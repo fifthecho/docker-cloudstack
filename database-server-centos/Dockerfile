@@ -10,4 +10,4 @@ RUN yum install -y --nogpgcheck http://dev.mysql.com/get/mysql-community-release
 RUN yum install -y ansible
 # RUN ansible-playbook /etc/ansible/setup.yml -c local
 EXPOSE 3306 22
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/sbin/sshd"]
