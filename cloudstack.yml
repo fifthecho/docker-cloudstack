@@ -11,10 +11,10 @@
   tasks:
   - name: fetch build code
     git: repo=https://git.dpcloud.com/jmoody/docker-cloudstack-management.git dest=/tmp/build
-  - name: build the database container
-    docker_image: path=/tmp/build/database-server-centos name=apache-cloudstack-database state=present
   - name: ensure py-docker is installed
     pip: name=docker-py
+  - name: build the database container
+    docker_image: path=/tmp/build/database-server-centos name=apache-cloudstack-database state=present
   - name: run mysql servers
     docker: image=apache-cloudstack-database name=acs-db state=present ports=3306:3306 publish_all_ports=true
   - name: fetch mysql ssh port
@@ -24,28 +24,31 @@
   - name: add mysql server to inventory
     add_host: name=acs-db groups=database ansible_ssh_host=localhost ansible_ssh_port={{ mysql_ssh_port.stdout }} ansible_ssh_pass=cloudstack
   - name: wait for container to start
-    command: /bin/sleep 25
+    command: /bin/sleep 30
 - hosts: database
   vars:
     mysql_root_password: cloudstack
 
   tasks:
     - name: update mysql root password for all root accounts
-      action: mysql_user name=root host={{ item }} password={{ mysql_root_password }}
+      mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
       with_items:
         - 127.0.0.1
         - ::1
-        - localhost
         - \%
+        - localhost
+
+    - name: setup my.cnf to allow root authentication for mysql
+      template: src=database-server-centos/build/.my.cnf dest=/root/.my.cnf
 
     - name: ensure anonymous users are not in the database
-      action: mysql_user name='' host={{ item }} state=absent
+      mysql_user: name='' host={{ item }} state=absent
       with_items:
         - $inventory_hostname
         - $ansible_hostname
         - localhost
 
     - name: remove the test database
-      action: mysql_db name=test state=absent
+      mysql_db: name=test state=absent
       tags: config
 
