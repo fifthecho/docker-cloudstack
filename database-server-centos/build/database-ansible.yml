@@ -1,20 +1,24 @@
 ---
 - hosts: all
-  sudo: yes
   vars:
     mysql_data_dir: "/var/lib/mysql"
+    root_user_password: cloudstack
   tasks:
-    - name: ensure mysql packages are installed
-    apt: pkg={{ item }} force=yes
-    with_items:
-      - python-mysqldb
-      - mysql-server
-      - mysql-client
-    - name: ensure mysql directory has the correct permissions
-      file: path={{ mysql_data_dir }} owner=mysql group=mysql
-    - name: Check for MySQL database initialization
-      stat: path={{ mysql_data_dir }}/mysql
-      register: is_mysql_initialized
-    - name: initialize mysql database (if necessary)
-      command: /usr/bin/mysql_install_db
-      when: not is_mysql_initialized
+    - name: install mysql repo package
+      yum: name=http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm state=present
+    - name: ensure system packages are installed
+      yum: pkg={{ item }} state=latest
+      with_items:
+        - mysql-community-server
+        - mysql-connector-python
+        - supervisor
+        - openssh-server
+        - sudo
+    - name: create /etc/sysconfig/network for mysql to start
+      file: path=/etc/sysconfig/network state=touch
+    - name: start mysql
+      service: name=mysqld state=started enabled=false
+    - name: start sshd
+      service: name=sshd state=started enabled=false
+    - name: set root password
+      user: name=root password={{ root_user_password }} update_password=always
