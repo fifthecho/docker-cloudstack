@@ -1,35 +1,30 @@
-Docker-CloudStack-Management
-============
+Apache CloudStack in Docker
+--------------------
 
-## Description
+HOWTO:
 
-This is a [Docker](https://www.docker.io/) setup to build and run an Apache CloudStack Management Server. 
+1. git clone the file to your computer  
+    $ git clone https://github.com/fifthecho/docker-cloudstack.git
 
-To start, you will need to execute the build-and-run script which will go through the process of building and running a MySQL 5.5 container (running under Ubuntu 12.04) (with many thanks from [Orchard](https://github.com/orchardup/docker-mysql) for the MySQL build process) and an Apache CloudStack Management Server (running under Ubuntu 12.04).
-Once the Management Systems are done, you still need to have a Secondary Storage Location and seed it with the [System VM Templates](http://docs.cloudstack.apache.org/projects/cloudstack-installation/en/latest/installation.html#prepare-the-system-vm-template). For convenience of not needing to try and climb into the Management Server Container, I've dropped the cloud-install-sys-tmplt script under "tools" but you will need a MySQL client on your Docker host for the database inserts that script makes to the Database once the seed is complete. You will also need to copy the "db.properties" file from the "tools" directory to /etc/cloudstack/management/ on your Docker host so that your host has the keys into the database.
+2. Set up Ansible [http://docs.ansible.com/intro_installation.html]
 
-This is DEFINITELY not ment for production as the encryption and passwords are very basic (cloud / cloudstack) and there's a number of ancillary systems (usage, for one) that aren't running.
+3. Execute ./build-and-run.sh
 
-## Use
+3a. The first Playbook (build-docker-container.yml) is executed to create the Dockerfile and build the container.
 
-Clone. Run the ./build-and-run.sh script. Connect to localhost on port 8080 for the CloudStack Management UI.
-The initial build may take some time depending on your location due to the speed of the repository for CloudStack, however, I've been able to get a management server built and running in less than 10 minutes.
+3b. The second Playbook (configure-environment.yml) is executed to set everything up on your host and create an Ansible host inventory for the Docker container
 
-Once built, you'll need to install the system VM templates into an NFS repository for the Hypervisors to use. For example, I ran:
+3c. The third Playbook (setup-cloudstack.yml) does the "heavy lifting" of getting ACS management up and running.
 
-for KVM:
-```
-./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/kvm/ -h kvm -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
-```
-for XenServer:
-```
-./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/xen/ -h xenserver -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-xen.vhd.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
+4. Access the CloudStack management interface via http://localhost:8080/client
 
-```
-for Hyper-V
-```
-./tools/cloud-install-sys-tmplt -m /opt/cloudstack/secondary/hyperv/ -h hyperv -s cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2013-12-23-hyperv.vhd.bz2 -F -o 127.0.0.1 -r cloud -d cloudstack
-```
+5. Cloud!
 
 
-If you are wanting to attach a KVM server, log into CloudStack and under "Global Settings" change the "host" parameter to the IP address of the host which is running the container, save the configuration change, stop the docker container and re-run the build-and-run.sh script.
+Additonal work is forthcoming to provide persistence to the database (using a Docker volume and Ansible tests before running the DB init script) and a HTTP server to proxy traffic to prevent the ugly jetty errors you get if you hit http://localhost:8080/
+
+The supervisord web interface is exposed on port 9001 from the container (local port can be fetched by running ) for viewing CloudStack logs. I may move to Circus from Supervisord to provide the ACS logs in the "docker logs" output.
+
+Additionally, this is raw, OSS Apache CloudStack built from source and not a noredist build (like the RPMs/DEBs), so it won't work with things like VMware, Netscaler, etc., but I may fix that too.
+
+Pull requests are very welcome.
