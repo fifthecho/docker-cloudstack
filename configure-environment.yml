@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    host_key_checking: False
+    cloud_user_password: cloudstack
+  tasks:
+    - name: fetch container ssh port
+      shell: docker port cloudstack 22 | cut -d ":" -f 2
+      register: container_ssh_port
+    - name: create new ansible inventory for container
+      template: src=build/inventory.j2 dest=./hosts
+    - name: ensure sshpass is installed (Arch)
+      pacman: name=sshpass state=present
+      sudo: true
+      when: ansible_os_family == "Arch"

@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    cloudstack_version: 4.3
+  tasks:
+    - name: ensure that docker-py is installed
+      sudo: True
+      pip: name=docker-py state=present
+    - name: create new dockerfile for container
+      template: src=build/Dockerfile.j2 dest=./Dockerfile
+    - name: build cloudstack docker container
+      docker_image: path=. name=cloudstack tag={{ cloudstack_version }}
+    - name: start cloudstack docker container
+      docker: ports="8080:8080,8250:8250,3922:3922,9090:9090,7080:7080" publish_all_ports=True image=cloudstack:{{ cloudstack_version }}
