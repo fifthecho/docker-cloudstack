@@ -12,4 +12,4 @@
     - name: build cloudstack docker container
       docker_image: path=. name=cloudstack tag={{ cloudstack_version }}
     - name: start cloudstack docker container
-      docker: ports="8080:8080,8250:8250,3922:3922,9090:9090,7080:7080" publish_all_ports=True image=cloudstack:{{ cloudstack_version }}
+      docker: ports="8080:8080,8250:8250,3922:3922,9090:9090,7080:7080" publish_all_ports=True name=cloudstack image=cloudstack:{{ cloudstack_version }}

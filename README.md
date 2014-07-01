@@ -23,7 +23,7 @@ HOWTO:
 
 Additonal work is forthcoming to provide persistence to the database (using a Docker volume and Ansible tests before running the DB init script) and a HTTP server to proxy traffic to prevent the ugly jetty errors you get if you hit http://localhost:8080/
 
-The supervisord web interface is exposed on port 9001 from the container (local port can be fetched by running ) for viewing CloudStack logs. I may move to Circus from Supervisord to provide the ACS logs in the "docker logs" output.
+The supervisord web interface is exposed on port 9001 from the container (local port can be fetched by running "docker port cloudstack 9001") for viewing CloudStack logs. I may move to Circus from Supervisord to provide the ACS logs in the "docker logs" output.
 
 Additionally, this is raw, OSS Apache CloudStack built from source and not a noredist build (like the RPMs/DEBs), so it won't work with things like VMware, Netscaler, etc., but I may fix that too.
 
