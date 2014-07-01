@@ -4,17 +4,17 @@ Apache CloudStack in Docker
 HOWTO:
 
 1. git clone the file to your computer  
-    $ git clone https://github.com/fifthecho/docker-cloudstack.git
+  git clone https://github.com/fifthecho/docker-cloudstack.git
 
 2. Set up Ansible [http://docs.ansible.com/intro_installation.html]
 
 3. Execute ./build-and-run.sh
 
-3a. The first Playbook (build-docker-container.yml) is executed to create the Dockerfile and build the container.
+  3. The first Playbook (build-docker-container.yml) is executed to create the Dockerfile and build the container.
 
-3b. The second Playbook (configure-environment.yml) is executed to set everything up on your host and create an Ansible host inventory for the Docker container
+  3. The second Playbook (configure-environment.yml) is executed to set everything up on your host and create an Ansible host inventory for the Docker container
 
-3c. The third Playbook (setup-cloudstack.yml) does the "heavy lifting" of getting ACS management up and running.
+  3. The third Playbook (setup-cloudstack.yml) does the "heavy lifting" of getting ACS management up and running.
 
 4. Access the CloudStack management interface via http://localhost:8080/client
 
