@@ -35,7 +35,7 @@
       sudo: true
     - name: ensure that nfs is installed (Arch)
       pacman: name=nfs-utils state=present
-      when: ansible_os_family == "Arch"
+      when: ansible_os_family == "Archlinux"
       sudo: true
 
     - name: install docker (Debian) (1/3)
@@ -67,7 +67,7 @@
       sudo: true
     - name: install docker (Arch)
       pacman: name=docker state=present
-      when: ansible_os_family == "Arch"
+      when: ansible_os_family == "Archlinux"
       sudo: true
 
     - name: ensure docker is enabled and running
@@ -100,7 +100,7 @@
       sudo: true
     - name: restart NFS (Arch)
       action: service name=nfs-server state=restarted enabled=yes
-      when: ansible_os_family == "Arch"
+      when: ansible_os_family == "Archlinux"
       sudo: true
 
     - name: ensure that docker-py is installed

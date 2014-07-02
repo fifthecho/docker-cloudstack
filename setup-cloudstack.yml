@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars:
-    host_key_checking: False
+    host_key_checking: false
     cloudstack_database_password: cloudstack
   sudo: true
   tasks:

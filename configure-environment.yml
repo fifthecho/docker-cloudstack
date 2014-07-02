@@ -13,7 +13,7 @@
     - name: ensure sshpass is installed (Arch)
       pacman: name=sshpass state=present
       sudo: true
-      when: ansible_os_family == "Arch"
+      when: ansible_os_family == "Archlinux"
     - name: ensure sshpass is installed (Debian)
       apt: name=sshpass state=latest
       sudo: true
@@ -29,4 +29,4 @@
     - name: ensure sshpass is installed (Arch)
       pacman: name=sshpass state=present
       sudo: true
-      when: ansible_os_family == "Arch"
+      when: ansible_os_family == "Archlinux"
