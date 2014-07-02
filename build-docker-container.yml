@@ -14,6 +14,56 @@
     - name: ensure that secondary storage path exists
       file: state=directory path={{ secondary_path }}
       sudo: true
+
+    - name: ensure that nfs is installed (Debian)
+      apt: name=nfs-kernel-server state=latest
+      when: ansible_os_family == "Debian"
+      sudo: true
+    - name: ensure that nfs is installed (RedHat)
+      yum: name=nfs-utils state=latest
+      when: ansible_os_family == "RedHat"
+      sudo: true
+    - name: ensure that nfs is installed (Suse)
+      zypper: name={{ item }} state=latest
+      with_items:
+        - nfs-kernel-server
+        - nfs-utils
+      when: ansible_os_family == "Suse"
+      sudo: true
+    - name: ensure that nfs is installed (Arch)
+      pacman: name=nfs-utils state=present
+      when: ansible_os_family == "Arch"
+      sudo: true
+
+    - name: install docker (Debian) (1/2)
+      shell: sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+      when: ansible_os_family == "Debian"
+      sudo: true
+    - name: install docker (Debian) (2/2)
+      apt: name=lxc-docker state=latest update_cache=true
+      when: ansible_os_family == "Debian"
+      sudo: true
+    - name: install docker (RedHat) (1/2)
+      yum: name=http://mirror.pnl.gov/epel/6/x86_64/epel-release-6-8.noarch.rpm state=present
+      when: ansible_os_family == "RedHat"
+      sudo: true
+    - name: install docker (RedHat) (2/2)
+      yum: name=docker-io state=present
+      when: ansible_os_family == "RedHat"
+      sudo: true
+    - name: install docker (Suse) (1/2)
+      shell: zypper ar -f http://download.opensuse.org/repositories/Virtualization/openSUSE_13.1/ Virtualization
+      when: ansible_os_family == "Suse"
+      sudo: true
+    - name: install docker (Suse) (2/2)
+      zypper: name=docker state=latest
+      when: ansible_os_family == "Suse"
+      sudo: true
+    - name: install docker (Arch)
+      pacman: name=docker state=present
+      when: ansible_os_family == "Arch"
+      sudo: true
+
     - name: ensure that primary storage is in /etc/exports
       lineinfile: "dest=/etc/exports state=present regexp='{{ primary_path }}' line='{{ primary_path }} *(rw,no_root_squash,no_subtree_check)'"
       sudo: true
@@ -41,3 +91,4 @@
       service: name=nfs-server state=restarted
       when: ansible_os_family == "Arch"
       sudo: true
+    - name: restart NFS

@@ -18,10 +18,6 @@
       apt: name=sshpass state=latest
       sudo: true
       when: ansible_os_family == "Debian"
-    - name: install EPEL for RHEL
-      yum: name=http://mirror.pnl.gov/epel/6/x86_64/epel-release-6-8.noarch.rpm state=present
-      when: ansible_os_family == "RedHat"
-      sudo: true
     - name: ensure sshpass is installed (RedHat)
       yum: name=sshpass state=latest
       sudo: true
