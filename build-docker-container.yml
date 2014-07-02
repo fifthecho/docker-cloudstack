@@ -73,11 +73,30 @@
     - name: ensure that primary storage is in /etc/exports
       lineinfile: "dest=/etc/exports state=present regexp='{{ primary_path }}' line='{{ primary_path }} *(rw,no_root_squash,no_subtree_check)'"
       sudo: true
-      notify: restart NFS
     - name: ensure that primary storage is in /etc/exports
       lineinfile: "dest=/etc/exports state=present regexp='{{ secondary_path }}' line='{{ secondary_path }} *(rw,no_root_squash,no_subtree_check)'"
       sudo: true
-      notify: restart NFS
+
+    - name: restart NFS (Debian)
+      service: name=nfs-kernel-server state=restarted enabled=yes
+      when: ansible_os_family == "Debian"
+      sudo: true
+    - name: restart NFS (RedHat)
+      service: name={{ item }} state=restarted enabled=yes
+      with_items:
+        - rpcbind
+        - nfs
+      when: ansible_os_family == "RedHat"
+      sudo: true
+    - name: restart NFS (Suse)
+      action: service name=nfsserver state=restarted enabled=yes
+      when: ansible_os_family == "Suse"
+      sudo: true
+    - name: restart NFS (Arch)
+      action: service name=nfs-server state=restarted enabled=yes
+      when: ansible_os_family == "Arch"
+      sudo: true
+
     - name: ensure that docker-py is installed
       sudo: True
       pip: name=docker-py state=present
@@ -92,23 +111,3 @@
         name=cloudstack
         image=cloudstack:{{ cloudstack_version }}
         volumes={{ secondary_path }}:/opt/storage/secondary,/var/lib/mysql
-  handlers:
-    - name: restart NFS
-      service: name=nfs-kernel-server state=restarted enabled=yes
-      when: ansible_os_family == "Debian"
-      sudo: true
-    - name: restart NFS
-      service: name={{ item }} state=restarted enabled=yes
-      with_items:
-        - rpcbind
-        - nfs
-      when: ansible_os_family == "RedHat"
-      sudo: true
-    - name: restart NFS
-      action: service name=nfsserver state=restarted enabled=yes
-      when: ansible_os_family == "Suse"
-      sudo: true
-    - name: restart NFS
-      action: service name=nfs-server state=restarted enabled=yes
-      when: ansible_os_family == "Arch"
-      sudo: true
