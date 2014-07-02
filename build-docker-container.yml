@@ -89,7 +89,10 @@
       when: ansible_os_family == "RedHat"
       sudo: true
     - name: restart NFS (Suse)
-      action: service name=nfsserver state=restarted enabled=yes
+      action: service name={{ item }} state=restarted enabled=yes
+      with_items:
+        - rpcbind
+        - nfsserver
       when: ansible_os_family == "Suse"
       sudo: true
     - name: restart NFS (Arch)
