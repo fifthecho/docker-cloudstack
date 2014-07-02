@@ -1,0 +1,1 @@
+docker run -p 8080:8080 -p 8250:8250 -p 3922:3922 -p 9090:9090 -p 7080:7080 -P --name="cloudstack" -v /var/lib/mysql -v /opt/storage/secondary:/opt/storage/secondary cloudstack:4.3 

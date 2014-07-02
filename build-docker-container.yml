@@ -3,13 +3,39 @@
   connection: local
   vars:
     cloudstack_version: 4.3
+    primary_path: /opt/storage/primary
+    secondary_path: /opt/storage/secondary
   tasks:
+    - name: ensure that primary storage path exists
+      file: state=directory path={{ primary_path }}
+      sudo: true
+    - name: ensure that secondary storage path exists
+      file: state=directory path={{ secondary_path }}
+      sudo: true
+    - name: ensure that primary storage is in /etc/exports
+      lineinfile: "dest=/etc/exports state=present regexp='{{ primary_path }}' line='{{ primary_path }} *(rw,no_root_squash,no_subtree_check)'"
+      sudo: true
+      notify: restart NFS
+    - name: ensure that primary storage is in /etc/exports
+      lineinfile: "dest=/etc/exports state=present regexp='{{ secondary_path }}' line='{{ secondary_path }} *(rw,no_root_squash,no_subtree_check)'"
+      sudo: true
+      notify: restart NFS
     - name: ensure that docker-py is installed
       sudo: True
       pip: name=docker-py state=present
     - name: create new dockerfile for container
       template: src=build/Dockerfile.j2 dest=./Dockerfile
     - name: build cloudstack docker container
-      docker_image: path=. name=cloudstack tag={{ cloudstack_version }}
+      docker_image: name=cloudstack tag={{ cloudstack_version }} path=.
     - name: start cloudstack docker container
-      docker: ports="8080:8080,8250:8250,3922:3922,9090:9090,7080:7080" publish_all_ports=True name=cloudstack image=cloudstack:{{ cloudstack_version }}
+      docker: 
+        ports=8080:8080,8250:8250,3922:3922,9090:9090,7080:7080
+        publish_all_ports=True
+        name=cloudstack
+        image=cloudstack:{{ cloudstack_version }}
+        volumes={{ secondary_path }}:/opt/storage/secondary,/var/lib/mysql
+  handlers:
+    - name: restart NFS
+      service: name=nfs-server state=restarted
+      when: ansible_os_family == "Arch"
+      sudo: true

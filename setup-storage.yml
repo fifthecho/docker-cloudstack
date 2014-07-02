@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    primary_path: /opt/storage/primary
+    secondary_path: /opt/storage/secondary
+  sudo: true
+  tasks:
+    - name: ensure that primary storage path exists
+      file: state=directory path={{ primary_path }}
+    - name: ensure that secondary storage path exists
+      file: state=directory path={{ secondary_path }}
+    - name: ensure that primary storage is in /etc/exports
+      lineinfile: "dest=/etc/exports state=present regexp='{{ primary_path }}' line='{{ primary_path }} *(rw,no_root_squash,no_subtree_check)'"
+    - name: ensure that primary storage is in /etc/exports
+      lineinfile: "dest=/etc/exports state=present regexp='{{ secondary_path }}' line='{{ secondary_path }} *(rw,no_root_squash,no_subtree_check)'"
+    - name: restart NFS
+      service: name=nfs-server state=restarted
