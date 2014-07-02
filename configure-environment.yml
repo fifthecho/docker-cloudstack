@@ -26,3 +26,7 @@
       zypper: name=http://download.opensuse.org/repositories/openSUSE:/Factory/standard/x86_64/sshpass-1.05-1.2.x86_64.rpm state=present
       sudo: true
       when: ansible_os_family == "Suse"
+    - name: ensure sshpass is installed (Arch)
+      pacman: name=sshpass state=present
+      sudo: true
+      when: ansible_os_family == "Arch"
