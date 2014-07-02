@@ -36,7 +36,5 @@
       sudo: false
     - name: install xen system vm template
       shell: ./cloudstack/scripts/storage/secondary/cloud-install-sys-tmplt -m /opt/storage/secondary -F -o localhost -r cloud -d cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-xen.vhd.bz2 -h xenserver
-      sudo: false
     - name: install kvm system vm template
       shell: ./cloudstack/scripts/storage/secondary/cloud-install-sys-tmplt -m /opt/storage/secondary -F -o localhost -r cloud -d cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -h kvm
-      sudo: false

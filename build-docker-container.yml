@@ -5,6 +5,8 @@
     cloudstack_version: 4.3
     primary_path: /opt/storage/primary
     secondary_path: /opt/storage/secondary
+    cloud_user_password: cloudstack
+    mysql_root_password: cloudstack
   tasks:
     - name: ensure that primary storage path exists
       file: state=directory path={{ primary_path }}

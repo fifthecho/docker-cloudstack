@@ -12,7 +12,7 @@ RUN apt-get install -y wget curl sudo nano vim
 # RUN groupadd -g 27 sudo
 RUN useradd -s /bin/bash -m -k -U cloudstack
 RUN usermod -a -G sudo cloudstack
-RUN echo 'cloudstack:cloudstack' | chpasswd
+RUN echo 'cloudstack:{{ cloud_user_password }}' | chpasswd
 
 # setting up CloudStack build environment
 RUN apt-get install -y git maven openjdk-7-jdk python-pip python-dev python-setuptools mkisofs
@@ -35,10 +35,7 @@ ADD build/supervisord.conf /etc/supervisor/conf.d/
 
 # mysql configuration
 ADD build/my.cnf /etc/mysql/
-RUN (/usr/bin/mysqld_safe &); sleep 5; echo "DELETE FROM mysql.user WHERE host='::1';SET PASSWORD FOR root@localhost = PASSWORD('cloudstack'); GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'cloudstack' WITH GRANT OPTION; FLUSH PRIVILEGES;" | mysql -uroot
-
-ADD build/db.properties.override /home/cloudstack/cloudstack/utils/conf/db.properties.override
-RUN chown cloudstack:cloudstack /home/cloudstack/cloudstack/utils/conf/db.properties.override
+RUN (/usr/bin/mysqld_safe &); sleep 5; echo "DELETE FROM mysql.user WHERE host='::1';SET PASSWORD FOR root@localhost = PASSWORD('{{ mysql_root_password }}'); GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}' WITH GRANT OPTION; FLUSH PRIVILEGES;" | mysql -uroot
 
 # Add Supervisord web interface for log files.
 ADD build/supervisor-interface.conf /etc/supervisor/conf.d/
