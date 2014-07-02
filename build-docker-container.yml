@@ -42,7 +42,7 @@
       apt: name=apt-transport-https state=latest
       when: ansible_os_family == "Debian"
     - name: install docker (Debian) (2/3)
-      shell: sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+      apt_repository: repo='deb https://get.docker.io/ubuntu docker main' state=present
       when: ansible_os_family == "Debian"
       sudo: true
     - name: install docker (Debian) (3/3)
