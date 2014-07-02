@@ -20,7 +20,10 @@
       when: ansible_os_family == "Debian"
       sudo: true
     - name: ensure that nfs is installed (RedHat)
-      yum: name=nfs-utils state=latest
+      yum: name={{ item }} state=latest
+      with_items:
+        - libselinux-python
+        - nfs-utils
       when: ansible_os_family == "RedHat"
       sudo: true
     - name: ensure that nfs is installed (Suse)
@@ -40,7 +43,7 @@
       when: ansible_os_family == "Debian"
       sudo: true
     - name: install docker (Debian) (2/2)
-      apt: name=lxc-docker state=latest update_cache=true
+      apt: name=lxc-docker state=latest update_cache=true force=yes
       when: ansible_os_family == "Debian"
       sudo: true
     - name: install docker (RedHat) (1/2)
@@ -52,7 +55,7 @@
       when: ansible_os_family == "RedHat"
       sudo: true
     - name: install docker (Suse) (1/2)
-      shell: zypper ar -f http://download.opensuse.org/repositories/Virtualization/openSUSE_13.1/ Virtualization
+      zypper_repository: repo=http://download.opensuse.org/repositories/Virtualization/openSUSE_13.1/ name=Virtualization state=present
       when: ansible_os_family == "Suse"
       sudo: true
     - name: install docker (Suse) (2/2)
@@ -63,6 +66,9 @@
       pacman: name=docker state=present
       when: ansible_os_family == "Arch"
       sudo: true
+
+    - name: ensure docker is enabled and running
+      service: name=docker state=started enabled=yes
 
     - name: ensure that primary storage is in /etc/exports
       lineinfile: "dest=/etc/exports state=present regexp='{{ primary_path }}' line='{{ primary_path }} *(rw,no_root_squash,no_subtree_check)'"
@@ -88,7 +94,21 @@
         volumes={{ secondary_path }}:/opt/storage/secondary,/var/lib/mysql
   handlers:
     - name: restart NFS
-      service: name=nfs-server state=restarted
-      when: ansible_os_family == "Arch"
+      service: name=nfs-kernel-server state=restarted enabled=yes
+      when: ansible_os_family == "Debian"
       sudo: true
     - name: restart NFS
+      service: name={{ item }} state=restarted enabled=yes
+      with_items:
+        - rpcbind
+        - nfs
+      when: ansible_os_family == "RedHat"
+      sudo: true
+    - name: restart NFS
+      action: service name=nfsserver state=restarted enabled=yes
+      when: ansible_os_family == "Suse"
+      sudo: true
+    - name: restart NFS
+      action: service name=nfs-server state=restarted enabled=yes
+      when: ansible_os_family == "Arch"
+      sudo: true
