@@ -13,7 +13,6 @@
       shell: mysql -u root -p{{ cloudstack_database_password }} -h 127.0.0.1 -e 'show databases;' | grep ^cloud$
       ignore_errors: yes
       register: cloud_database
-    - debug: var=cloud_database
     - name: setup cloudstack databases
       shell: /home/cloudstack/setup-database.sh
       sudo: false
