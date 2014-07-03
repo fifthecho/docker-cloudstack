@@ -7,13 +7,17 @@
   tasks:
     - name: setup cloudstack passwordless sudo
       lineinfile: "dest=/etc/sudoers state=present regexp='^%cloudstack' line='%cloudstack ALL=(ALL) NOPASSWD: ALL'"
-    - name: setup mysqldb connector for ansible
-      apt: name=python-mysqldb state=latest
     - name: setup cloudstack database connection file
       template: src=build/db.properties.override.j2 dest=/home/cloudstack/cloudstack/utils/conf/db.properties.override owner=cloudstack mode=0644
     - name: test to see if cloud database exists
-      mysql_db: name=cloud state=present login_user=root login_password={{ cloudstack_database_password }}
-      notify: setup cloudstack databases
+      shell: mysql -u root -p{{ cloudstack_database_password }} -h 127.0.0.1 -e 'show databases;' | grep ^cloud$
+      ignore_errors: yes
+      register: cloud_database
+    - debug: var=cloud_database
+    - name: setup cloudstack databases
+      shell: /home/cloudstack/setup-database.sh
+      sudo: false
+      when: not cloud_database.stdout
     - name: setup cloudstack supervisor file
       template: src=build/cloudstack-supervisor.conf.j2 dest=/etc/supervisor/conf.d/cloudstack.conf
     - name: register cloudstack with supervisord
@@ -25,16 +29,14 @@
     - name: install uuidgen
       apt: name=uuid-runtime state=latest
     - name: test to see if xen system vm template is present
-      file: state=directory path=/opt/storage/secondary/template/tmpl/1/1
-      notify: install xen system vm template
+      stat: path=/opt/storage/secondary/template/tmpl/1/1
+      register: xen_template
     - name: test to see if kvm system vm template is present
-      file: state=directory path=/opt/storage/secondary/template/tmpl/1/3
-      notify: install kvm system vm template
-  handlers:
-    - name: setup cloudstack databases
-      shell: /home/cloudstack/setup-database.sh
-      sudo: false
+      stat: path=/opt/storage/secondary/template/tmpl/1/3
+      register: kvm_template
     - name: install xen system vm template
       shell: ./cloudstack/scripts/storage/secondary/cloud-install-sys-tmplt -m /opt/storage/secondary -F -o localhost -r cloud -d cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-xen.vhd.bz2 -h xenserver
+      when: xen_template.stat.exists == false
     - name: install kvm system vm template
       shell: ./cloudstack/scripts/storage/secondary/cloud-install-sys-tmplt -m /opt/storage/secondary -F -o localhost -r cloud -d cloud -u http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -h kvm
+      when: kvm_template.stat.exists == false
