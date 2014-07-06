@@ -7,6 +7,10 @@
   tasks:
     - name: setup cloudstack passwordless sudo
       lineinfile: "dest=/etc/sudoers state=present regexp='^%cloudstack' line='%cloudstack ALL=(ALL) NOPASSWD: ALL'"
+    - name: setup the database initialization script
+      template: src=build/setup-cloudstack-database.sh.j2 dest=/home/cloudstack/setup-database.sh mode=0755
+    - name: setup cloudstack runtime script
+      template: src=build/run-cloudstack.sh.j2 dest=/home/cloudstack/run-cloudstack.sh mode=0755
     - name: setup cloudstack database connection file
       template: src=build/db.properties.override.j2 dest=/home/cloudstack/cloudstack/utils/conf/db.properties.override owner=cloudstack mode=0644
     - name: test to see if cloud database exists

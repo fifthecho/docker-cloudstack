@@ -19,8 +19,6 @@ RUN apt-get install -y git maven openjdk-7-jdk python-pip python-dev python-setu
 RUN sudo -u cloudstack git clone https://github.com/apache/cloudstack.git -b {{ cloudstack_version }} /home/cloudstack/cloudstack
 RUN sudo -u cloudstack wget http://download.cloud.com.s3.amazonaws.com/tools/vhd-util -O /home/cloudstack/cloudstack/scripts/vm/hypervisor/xenserver/vhd-util
 ADD build/build-cloudstack.sh /home/cloudstack/build-cloudstack.sh
-ADD build/setup-cloudstack-database.sh /home/cloudstack/setup-database.sh
-ADD build/run-cloudstack.sh /home/cloudstack/run-cloudstack.sh
 RUN chown cloudstack:cloudstack /home/cloudstack/*.sh
 RUN chmod +x /home/cloudstack/*.sh
 RUN sudo -u cloudstack /home/cloudstack/build-cloudstack.sh

@@ -30,3 +30,7 @@
       pacman: name=sshpass state=present
       sudo: true
       when: ansible_os_family == "Archlinux"
+    - name: ensure sshpass is installed (Gentoo)
+      emerge: name=net-misc/sshpass state=present
+      sudo: true
+      when: ansible_os_family == "Gentoo"

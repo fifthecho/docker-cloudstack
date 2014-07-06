@@ -37,6 +37,12 @@
       pacman: name=nfs-utils state=present
       when: ansible_os_family == "Archlinux"
       sudo: true
+    - name: ensure that nfs is installed (Gentoo)
+      portage: name={{ item }} state=present
+      with_items:
+        - net-fs/nfs-utils
+      when: ansible_os_family == "Gentoo"
+      sudo: true
 
     - name: install docker (Debian) (1/3)
       apt: name=apt-transport-https state=latest
@@ -69,6 +75,11 @@
       pacman: name=docker state=present
       when: ansible_os_family == "Archlinux"
       sudo: true
+    - name: install docker (Gentoo) (1/2)
+      lineinfile: "dest=/etc/portage/package.accept_keywords state=present regexp='app-emulation/docker' line='app-emulation/docker ~amd64'"
+      when: ansible_os_family == "Gentoo"
+    - name: install docker (Gentoo) (2/2)
+      portage: name=app-emulation/docker state=present
 
     - name: ensure docker is enabled and running
       service: name=docker state=started enabled=yes
@@ -92,16 +103,20 @@
       when: ansible_os_family == "RedHat"
       sudo: true
     - name: restart NFS (Suse)
-      action: service name={{ item }} state=restarted enabled=yes
+      service: name={{ item }} state=restarted enabled=yes
       with_items:
         - rpcbind
         - nfsserver
       when: ansible_os_family == "Suse"
       sudo: true
     - name: restart NFS (Arch)
-      action: service name=nfs-server state=restarted enabled=yes
+      service: name=nfs-server state=restarted enabled=yes
       when: ansible_os_family == "Archlinux"
       sudo: true
+    - name: restart NFS (Gentoo)
+      service: name=nfs state=restarted enabled=yes
+      sudo: true
+      when: ansible_os_family == "Gentoo"
 
     - name: ensure that docker-py is installed
       sudo: True
