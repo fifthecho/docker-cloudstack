@@ -80,6 +80,7 @@
       when: ansible_os_family == "Gentoo"
     - name: install docker (Gentoo) (2/2)
       portage: name=app-emulation/docker state=present
+      when: ansible_os_family == "Gentoo"
 
     - name: ensure docker is enabled and running
       service: name=docker state=started enabled=yes
